@@ -7,7 +7,7 @@ from importlib import util as importutil
 import json, warnings, asyncio, ssl
 from .protocol import StratumProtocol
 from . import __version__
-from script import BitcoinScript
+from .script import fch2btc, btc2fch
 
 # Check if aiosocks is present, and load it if it is.
 if importutil.find_spec("aiosocks") is not None:
@@ -411,11 +411,9 @@ class StratumClient:
         from binascii import b2a_hex
 
         # convert from base58 into sha256(binary of script)?
-        addr = BitcoinScript.toAddress(params[0])
-        sh = sha256(addr.script()).digest()[::-1]
+        addr = fch2btc(params[0])
 
-        return method.replace('.address.', '.scripthash.'), \
-                    [str(b2a_hex(sh), 'ascii')]+list(params[1:])
+        return method, [str(b2a_hex(addr), 'ascii')]+list(params[1:])
 
     def subscribe(self, method, *params):
         '''
